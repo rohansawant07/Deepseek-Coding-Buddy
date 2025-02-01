@@ -5,7 +5,7 @@
 
 AI-powered coding assistant with integrated debugging capabilities
 
-![Interface Demo](./assets/demo.png)
+
 
 ## Features
 - 🚀 Dual Model Support (1.5B & 3B)
