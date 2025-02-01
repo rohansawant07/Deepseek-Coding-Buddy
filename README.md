@@ -18,12 +18,15 @@ AI-powered coding assistant with integrated debugging capabilities
 1. **Install Requirements**:
 ```bash
 pip install -r requirements.txt
+```
 
 2. **Ollama Start**:
 ```bash
 ollama serve
+```
 
 3. ** Launch App**:
 ```bash
 streamlit run app.py
+```
 
