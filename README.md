@@ -25,7 +25,7 @@ pip install -r requirements.txt
 ollama serve
 ```
 
-3. ** Launch App **:
+3. **Launch App**:
 ```bash
 streamlit run app.py
 ```
