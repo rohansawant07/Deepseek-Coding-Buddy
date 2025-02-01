@@ -1,92 +1,166 @@
 import streamlit as st
 from langchain_ollama import ChatOllama
 from langchain_core.output_parsers import StrOutputParser
-
 from langchain_core.prompts import (
     SystemMessagePromptTemplate,
     HumanMessagePromptTemplate,
     AIMessagePromptTemplate,
     ChatPromptTemplate
 )
-# Custom CSS styling
+
+# Custom CSS styling with purple accent
 st.markdown("""
 <style>
-    /* Existing styles */
+    /* Base styles */
+    html, body, [class*="css"]  {
+        color: #E0E0E0;
+        background-color: #121212;
+    }
+
+    /* Main container */
     .main {
-        background-color: #1a1a1a;
-        color: #ffffff;
+        background-color: #121212;
+        padding: 2rem;
     }
+
+    /* Sidebar styling */
     .sidebar .sidebar-content {
-        background-color: #2d2d2d;
+        background-color: #1E1E1E;
+        border-right: 1px solid #333333;
     }
+
+    /* Input fields */
     .stTextInput textarea {
-        color: #ffffff !important;
+        background-color: #2D2D2D !important;
+        color: #FFFFFF !important;
+        border: 1px solid #404040 !important;
+        border-radius: 8px !important;
+        padding: 12px !important;
     }
-    
-    /* Add these new styles for select box */
+
+    /* Select box */
     .stSelectbox div[data-baseweb="select"] {
-        color: white !important;
-        background-color: #3d3d3d !important;
+        background-color: #2D2D2D !important;
+        border: 1px solid #404040 !important;
+        border-radius: 8px !important;
     }
-    
-    .stSelectbox svg {
-        fill: white !important;
-    }
-    
-    .stSelectbox option {
-        background-color: #2d2d2d !important;
-        color: white !important;
-    }
-    
-    /* For dropdown menu items */
+
+    /* Dropdown menu */
     div[role="listbox"] div {
-        background-color: #2d2d2d !important;
-        color: white !important;
+        background-color: #2D2D2D !important;
+        color: #FFFFFF !important;
+    }
+
+    /* Chat messages */
+    .stChatMessage {
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin: 1rem 0;
+    }
+    
+    /* User messages */
+    div[data-testid="stChatMessageUser"] {
+        background-color: #2D2D2D;
+        border: 1px solid #404040;
+    }
+
+    /* AI messages */
+    div[data-testid="stChatMessageAssistant"] {
+        background-color: #1E1E1E;
+        border: 1px solid #333333;
+    }
+
+    /* Code blocks */
+    code {
+        color: #78C9FF !important;
+        background-color: #2D2D2D !important;
+        padding: 4px 8px;
+        border-radius: 4px;
+        border: 1px solid #404040;
+        font-family: 'Fira Code', monospace;
+    }
+
+    pre code {
+        display: block;
+        padding: 1rem !important;
+        margin: 1rem 0 !important;
+        border-radius: 8px !important;
+    }
+
+    /* Buttons and hover states */
+    .stButton button {
+        background-color: #2D2D2D !important;
+        color: #78C9FF !important;
+        border: 1px solid #404040 !important;
+        transition: all 0.2s ease;
+    }
+
+    .stButton button:hover {
+        background-color: #78C9FF !important;
+        color: #121212 !important;
+        border-color: #78C9FF !important;
+    }
+
+    /* Divider styling */
+    hr {
+        border-color: #404040 !important;
+        margin: 2rem 0;
     }
 </style>
 """, unsafe_allow_html=True)
-st.title("🧠 DeepSeek Code Companion")
-st.caption("🚀 Your AI Pair Programmer with Debugging Superpowers")
+
+st.title("🤖 CodeGenius Pro")
+st.caption("✨ AI-Powered Coding Wizard with Multi-Model Intelligence")
 
 # Sidebar configuration
 with st.sidebar:
-    st.header("⚙️ Configuration")
+    st.header("⚙️ Engine Settings")
     selected_model = st.selectbox(
-        "Choose Model",
+        "Model Version",
         ["deepseek-r1:1.5b", "deepseek-r1:3b"],
-        index=0
+        index=0,
+        help="Choose model size based on complexity needs"
     )
+    
     st.divider()
-    st.markdown("### Model Capabilities")
+    st.markdown("### Core Capabilities")
     st.markdown("""
-    - 🐍 Python Expert
-    - 🐞 Debugging Assistant
-    - 📝 Code Documentation
-    - 💡 Solution Design
+    - 🧩 Advanced Code Synthesis
+    - 🔍 Context-Aware Debugging
+    - 📚 Smart Documentation
+    - ⚡ Performance Optimization
+    - 🛠️ Code Refactoring
     """)
     st.divider()
-    st.markdown("Built with [Ollama](https://ollama.ai/) | [LangChain](https://python.langchain.com/)")
+    st.markdown("**Powered by**  \n"
+                "[Ollama](https://ollama.ai/) | [LangChain](https://python.langchain.com/)")
+    st.markdown("*v1.2.0 | CodeGenius Pro*")
 
-
-# initiate the chat engine
-
-llm_engine=ChatOllama(
+# Initiate the chat engine
+llm_engine = ChatOllama(
     model=selected_model,
     base_url="http://localhost:11434",
-
-    temperature=0.3
-
+    temperature=0.35,
+    top_p=0.9,
+    num_ctx=4096
 )
 
-# System prompt configuration
+# Enhanced system prompt
 system_prompt = SystemMessagePromptTemplate.from_template(
-    "You are an expert AI coding assistant. Provide concise, correct solutions "
-    "with strategic print statements for debugging. Always respond in English."
+    """You are CodeGenius Pro - an elite AI coding assistant. Provide:
+1. Optimal solutions with strategic debugging hooks
+2. Clean, production-ready code
+3. Performance considerations
+4. Alternative approaches when applicable
+Always prioritize security and best practices. Use markdown for code formatting."""
 )
 
 # Session state management
 if "message_log" not in st.session_state:
-    st.session_state.message_log = [{"role": "ai", "content": "Hi! I'm DeepSeek. How can I help you code today? 💻"}]
+    st.session_state.message_log = [{
+        "role": "ai", 
+        "content": "Hello! I'm CodeGenius Pro 🚀\n\nHow can I assist with your coding challenge today?"
+    }]
 
 # Chat container
 chat_container = st.container()
@@ -98,10 +172,10 @@ with chat_container:
             st.markdown(message["content"])
 
 # Chat input and processing
-user_query = st.chat_input("Type your coding question here...")
+user_query = st.chat_input("Describe your coding task or paste error...")
 
 def generate_ai_response(prompt_chain):
-    processing_pipeline=prompt_chain | llm_engine | StrOutputParser()
+    processing_pipeline = prompt_chain | llm_engine | StrOutputParser()
     return processing_pipeline.invoke({})
 
 def build_prompt_chain():
@@ -114,16 +188,11 @@ def build_prompt_chain():
     return ChatPromptTemplate.from_messages(prompt_sequence)
 
 if user_query:
-    # Add user message to log
     st.session_state.message_log.append({"role": "user", "content": user_query})
     
-    # Generate AI response
-    with st.spinner("🧠 Processing..."):
+    with st.spinner("🔍 Analyzing..."):
         prompt_chain = build_prompt_chain()
         ai_response = generate_ai_response(prompt_chain)
     
-    # Add AI response to log
     st.session_state.message_log.append({"role": "ai", "content": ai_response})
-    
-    # Rerun to update chat display
     st.rerun()
